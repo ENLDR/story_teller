@@ -1,0 +1,6 @@
+{
+  "name": "Sinhala Horror Storyteller",
+  "description": "Generate gripping and terrifying Sinhala horror stories with immersive sound effects, dramatic pauses, and custom deep-voiced Text-to-Speech narration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
