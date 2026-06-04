@@ -17,13 +17,27 @@ procedurally-synthesized background drones and sound effects.
 ## Running
 
 The Gemini API key is supplied at run/build time via a Dart define (this
-replaces the Android `BuildConfig.GEMINI_API_KEY` / `.env` flow):
+replaces the Android `BuildConfig.GEMINI_API_KEY` / `.env` flow).
 
-```bash
-flutter run --dart-define=GEMINI_API_KEY=your_key_here
+**Recommended:** keep the key in a gitignored `dart_define.json` (next to
+`pubspec.yaml`) so it never lands in source control:
+
+```json
+{
+  "GEMINI_API_KEY": "your_key_here"
+}
 ```
 
-Optionally override the model (defaults to `gemini-2.0-flash`):
+```bash
+flutter run --dart-define-from-file=dart_define.json
+```
+
+`dart_define.json` is listed in `.gitignore`. The Android Studio `main.dart`
+run config already passes `--dart-define-from-file=dart_define.json`, so the
+Run button works once the file exists (reload the project to pick it up).
+
+Alternatively, pass the key (and optionally the model, default
+`gemini-2.0-flash`) inline:
 
 ```bash
 flutter run \

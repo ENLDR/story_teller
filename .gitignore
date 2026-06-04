@@ -33,6 +33,9 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Local secrets (Gemini API key passed via --dart-define-from-file)
+dart_define.json
+
 # Symbolication related
 app.*.symbols
 
