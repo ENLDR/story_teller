@@ -1,21 +1,54 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# භීතිකා — Sinhala Horror Storyteller (Flutter)
 
-# Run and deploy your AI Studio app
+A Flutter port of the original Android (Kotlin/Compose) "Sinhala Horror
+Storyteller & Audio Mixer". It generates gripping Sinhala horror stories with
+the Gemini API, narrates them with deep-voiced Text-to-Speech, and mixes in
+procedurally-synthesized background drones and sound effects.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/67a4b2e4-3725-4161-b866-47c4134f1d4f
+- **Create** tab — AI generator (location, length, terrifying element) plus a
+  manual writer with one-tap `[BGM:…]` / `[SFX:…]` cue insertion.
+- **Listen** tab — immersive player: animated waveform visualizer, per-line
+  highlighting, voice cycling (Deep Shadow / High Witch / Whispering Ghoul /
+  Spectral Normal), timeline, and transport controls.
+- **Library** tab — saved-story anthology with favorite, share/export, delete.
 
-## Run Locally
+## Running
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+The Gemini API key is supplied at run/build time via a Dart define (this
+replaces the Android `BuildConfig.GEMINI_API_KEY` / `.env` flow):
 
+```bash
+flutter run --dart-define=GEMINI_API_KEY=your_key_here
+```
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+Optionally override the model (defaults to `gemini-2.0-flash`):
+
+```bash
+flutter run \
+  --dart-define=GEMINI_API_KEY=your_key_here \
+  --dart-define=GEMINI_MODEL=gemini-2.0-flash
+```
+
+Without a key, the AI generator surfaces an error but the rest of the app
+(manual stories, the two prepopulated samples, playback, TTS, audio) works.
+
+## Architecture (mapping from the original)
+
+| Android (Kotlin)            | Flutter (Dart)                                   |
+| --------------------------- | ------------------------------------------------ |
+| `HorrorStoryViewModel`      | `state/horror_story_view_model.dart` (`ChangeNotifier` + `provider`) |
+| Room (`AppDatabase`/DAO)    | `data/story_database.dart` (`sqflite`)           |
+| Retrofit `GeminiApiService` | `api/gemini_service.dart` (`http`)               |
+| `NarrativeParser`           | `audio/narrative_element.dart`                   |
+| `SpookyAudioEngine` (`AudioTrack` PCM) | `audio/spooky_audio_engine.dart` (WAV synth + `audioplayers`) |
+| `SpookyTextToSpeech`        | `audio/spooky_tts.dart` (`flutter_tts`)          |
+| Compose `StorytellerApp`/tabs | `ui/*.dart`                                    |
+| Compose theme colors        | `theme/app_colors.dart`                          |
+
+## Build notes
+
+`android/app/build.gradle.kts` sets `minSdk = 24` (flutter_tts), `compileSdk = 36`
+(flutter_tts), and pins `ndkVersion = 28.2.13676358`. Kotlin Gradle plugin is
+`2.1.0`.
