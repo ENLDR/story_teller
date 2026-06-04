@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 
@@ -44,26 +45,51 @@ class GeminiService {
       },
     });
 
-    final response = await _client
-        .post(
-          uri,
-          headers: {'Content-Type': 'application/json'},
-          body: body,
-        )
-        .timeout(const Duration(seconds: 60));
+    // Endpoint path only — the request URI carries the API key as a query
+    // parameter, so never log the full `uri`.
+    final endpoint =
+        'v1beta/models/${AppConfig.geminiModel}:generateContent';
 
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Gemini API error ${response.statusCode}: ${response.body}',
+    try {
+      final response = await _client
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: body,
+          )
+          .timeout(const Duration(seconds: 60));
+
+      if (response.statusCode != 200) {
+        developer.log(
+          'Gemini API returned ${response.statusCode} for $endpoint: '
+          '${response.body}',
+          name: 'GeminiService',
+          error: 'HTTP ${response.statusCode}',
+        );
+        throw Exception(
+          'Gemini API error ${response.statusCode}: ${response.body}',
+        );
+      }
+
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+      final text = _extractText(decoded);
+      if (text == null || text.isEmpty) {
+        developer.log(
+          'Gemini API returned empty content for $endpoint: ${response.body}',
+          name: 'GeminiService',
+        );
+        throw Exception('Received empty content from Gemini API.');
+      }
+      return text;
+    } catch (e, st) {
+      developer.log(
+        'Gemini API call failed for $endpoint',
+        name: 'GeminiService',
+        error: e,
+        stackTrace: st,
       );
+      rethrow;
     }
-
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final text = _extractText(decoded);
-    if (text == null || text.isEmpty) {
-      throw Exception('Received empty content from Gemini API.');
-    }
-    return text;
   }
 
   String? _extractText(Map<String, dynamic> decoded) {

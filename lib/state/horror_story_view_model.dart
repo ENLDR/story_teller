@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -203,7 +204,13 @@ class HorrorStoryViewModel extends ChangeNotifier {
       );
       await _refreshStories();
       _generationState = GenSuccess(story);
-    } catch (e) {
+    } catch (e, st) {
+      developer.log(
+        'Story generation failed',
+        name: 'HorrorStoryViewModel',
+        error: e,
+        stackTrace: st,
+      );
       _generationState = GenError(e.toString());
     }
     notifyListeners();

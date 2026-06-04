@@ -32,9 +32,12 @@ replaces the Android `BuildConfig.GEMINI_API_KEY` / `.env` flow).
 flutter run --dart-define-from-file=dart_define.json
 ```
 
-`dart_define.json` is listed in `.gitignore`. The Android Studio `main.dart`
-run config already passes `--dart-define-from-file=dart_define.json`, so the
-Run button works once the file exists (reload the project to pick it up).
+`dart_define.json` is listed in `.gitignore`. The committed VS Code launch config
+(`.vscode/launch.json`, "story_teller (dart_define)") already passes
+`--dart-define-from-file=dart_define.json`, so launching it from the Run and Debug
+panel works once the file exists. Note: `GEMINI_API_KEY` is read at compile time
+(`String.fromEnvironment`), so after creating/editing `dart_define.json` you must
+do a full stop + relaunch — a hot reload/restart will not pick up the change.
 
 Alternatively, pass the key (and optionally the model, default
 `gemini-2.0-flash`) inline:
